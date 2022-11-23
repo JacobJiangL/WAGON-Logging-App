@@ -1,3 +1,5 @@
+
+// google api imports
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -19,6 +21,8 @@ import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
 
+//java awt/swing imports
+import javax.swing.JFrame;
 
 
 
@@ -62,6 +66,18 @@ public class Main {
         return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
     }
 
+    public static void initiateApp(Sheets sheetService) {
+        JFrame frame = new JFrame();
+
+        GUI gui = new GUI(sheetService);
+        frame.setBounds(0, 0, 1440, 900);
+        frame.setTitle("Interactive Registration Form (Made with Java AWT and Swing!)");
+        frame.setResizable(true);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        frame.add(gui);
+        frame.setVisible(true);
+    }
     /**
      * Prints the names and majors of students in a sample spreadsheet:
      * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
@@ -88,5 +104,8 @@ public class Main {
                 System.out.printf("%s, %s\n", row.get(0), row.get(4));
             }
         }
+
+
+        initiateApp(service);
     }
 }
