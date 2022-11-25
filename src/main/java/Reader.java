@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.lang.StringBuilder;
+import java.util.Arrays;
 
 public class Reader {
     protected ArrayList<String> amountUnits = new ArrayList<>() {
@@ -36,95 +37,48 @@ public class Reader {
     };
 
     public Object[] processResponse(String r) {
-        String response = r.toLowerCase().trim();
+        String response = r.toLowerCase().trim().replaceAll(" +", " ");
+        ArrayList<String> separatedResponse = new ArrayList<>(Arrays.asList(response.split(" ")));
         Object[] processedResponse = new Object[5]; // 5 slots - 1: food, 2: amount of food, 3: unit of food, 4: amount of weight, 5: unit of weight
         for(String unit : amountUnits) { // parse through each amount unit
             int[] numOfUnit = {-999,-999};
-            if(response.contains(" " + unit + " ") ||
-                    response.contains(" " + unit) || response.contains(unit + " ") ||
-                    response.contains("-" + unit) || response.contains(unit + "-")) {
-
-                if (response.contains(" " + unit + " ")) {
-                    numOfUnit = findNumBeforeUnit(response, " " + unit + " "); // grab info for slots 2 and 3
-
-                    response = deleteNumFromString(response, numOfUnit);
-
-                    response = response.replace(" " + unit + " ", ""); // remove grabbed info from original text
-                } else if (response.contains(" " + unit)) {
-                    numOfUnit = findNumBeforeUnit(response, " " + unit);
-
-                    response = deleteNumFromString(response, numOfUnit);
-
-                    response = response.replace(" " + unit, "");
-                } else if (response.contains(unit + " ")) {
-                    numOfUnit = findNumBeforeUnit(response, unit + " ");
-
-                    response = deleteNumFromString(response, numOfUnit);
-
-                    response = response.replace(unit + " ", "");
-                } else if (response.contains("-" + unit)) {
-                    numOfUnit = findNumBeforeUnit(response, "-" + unit);
-
-                    response = deleteNumFromString(response, numOfUnit);
-
-                    response = response.replace("-" + unit, "");
-                } else if (response.contains(unit + "-")) {
-                    numOfUnit = findNumBeforeUnit(response, unit + "-");
-
-                    response = deleteNumFromString(response, numOfUnit);
-
-                    response = response.replace(unit + "-", "");
+            for(int i = 0; i<separatedResponse.size(); i++) {
+                String word = separatedResponse.get(i);
+                if(word.equals(unit)) {
+                    if(i != 0) {
+                        numOfUnit = findNumInString(separatedResponse.get(i-1), false);
+                        separatedResponse.set(i - 1, deleteNumFromString(separatedResponse.get(i-1), numOfUnit));
+                        processedResponse[1] = numOfUnit[1];
+                    }
+                    processedResponse[2] = unit;
+                    separatedResponse.remove(i);
                 }
+            }
+            response = String.join(" ", separatedResponse);
+            System.out.println(response);
+
                 if(numOfUnit[1] >= 0) { // set slot 2
                     processedResponse[1] = numOfUnit[1];
-                } else {
-                    processedResponse[1] = 1;
                 }
-                processedResponse[2] = unit; // set slot 3
-            }
+
         }
-        for(String unit : weightUnits) { // parse through weight info
-            int[] numOfUnit = {-999, -999};
-            if(response.contains(" " + unit + " ") ||
-                    response.contains(" " + unit) || response.contains(unit + " ") ||
-                    response.contains("-" + unit) || response.contains(unit + "-")) {
-                if (response.contains(" " + unit + " ")) {
-                    numOfUnit = findNumBeforeUnit(response, " " + unit + " "); // grab weight info for slots 4 and 5
-
-                    response = deleteNumFromString(response, numOfUnit);
-
-                    response = response.replace(" " + unit + " ", ""); // remove grabbed info from original text
-                } else if (response.contains(" " + unit)) {
-                    numOfUnit = findNumBeforeUnit(response, " " + unit);
-
-                    response = deleteNumFromString(response, numOfUnit);
-
-                    response = response.replace(" " + unit, "");
-                } else if (response.contains(unit + " ")) {
-                    numOfUnit = findNumBeforeUnit(response, unit + " ");
-
-                    response = deleteNumFromString(response, numOfUnit);
-
-                    response = response.replace(unit + " ", "");
-                } else if (response.contains("-" + unit)) {
-                    numOfUnit = findNumBeforeUnit(response, "-" + unit);
-
-                    response = deleteNumFromString(response, numOfUnit);
-
-                    response = response.replace("-" + unit, "");
-                } else if (response.contains(unit + "-")) {
-                    numOfUnit = findNumBeforeUnit(response, unit + "-");
-
-                    response = deleteNumFromString(response, numOfUnit);
-
-                    response = response.replace(unit + "-", "");
+        for(String unit : weightUnits) { // parse through each amount unit
+            int[] numOfUnit = {-999,-999};
+            for(int i = 0; i<separatedResponse.size(); i++) {
+                String word = separatedResponse.get(i);
+                if(word.equals(unit)) {
+                    if(i != 0) {
+                        numOfUnit = findNumInString(separatedResponse.get(i-1), false);
+                        separatedResponse.set(i - 1, deleteNumFromString(separatedResponse.get(i-1), numOfUnit));
+                        processedResponse[3] = numOfUnit[1];
+                    }
+                    processedResponse[4] = unit;
+                    separatedResponse.remove(i);
                 }
-                if(numOfUnit[1] >= 0) {
-                    processedResponse[3] = numOfUnit[1]; // set slot 4
-                } else {
-                    processedResponse[3] = null;
-                }
-                processedResponse[4] = unit; // set slot 5
+            }
+            response = String.join(" ", separatedResponse);
+            if(numOfUnit[1] >= 0) { // set slot 2
+                processedResponse[3] = numOfUnit[1];
             }
         }
         response = response.trim();
@@ -143,33 +97,59 @@ public class Reader {
                 response = response.substring(0, response.length() - 1).trim();
             }
         }
+        if(findNumInString(response, true)[1] >= 0 && processedResponse[1] == null) {
+            processedResponse[1] = findNumInString(response, true)[1];
+            response = deleteNumFromString(response, findNumInString(response, true)).trim();
+        } else if (processedResponse[1] == null) {
+            processedResponse[1] = 1;
+        }
         processedResponse[0] = capitalizeWordsInString(response);
         System.out.println(response);
         return processedResponse;
     }
-    private int[] findNumBeforeUnit(String response, String unit) {
-        try {
+    private int[] findNumInString(String response, boolean startFromBeginning) {
+        if(startFromBeginning) {
             boolean isNum = false;
-            int numStartingIndex = response.indexOf(unit) - 1;
-            while ("0123456789".indexOf(response.charAt(numStartingIndex)) != -1) { // parse backward to find connected number characters
-                isNum = true; // if number unit is found mark that there is a number
+            int numEndingIndex = 0;
+            while ("0123456789".indexOf(response.charAt(numEndingIndex)) != -1) { // parse backward to find connected number characters
+                isNum = true;
 
-                if(numStartingIndex > 0) {
-                    numStartingIndex -= 1;
+                if(numEndingIndex < response.length() - 1) {
+                    numEndingIndex += 1;
                 } else {
-                    numStartingIndex = -1;
+                    numEndingIndex = response.length() + 1;
                     break;
                 }
             }
-            numStartingIndex += 1;
-            if(isNum) {
-                return new int[]{numStartingIndex,
-                        Integer.parseInt(response.substring(numStartingIndex, response.indexOf(unit)))}; // grab full number
+            if (isNum) {
+                return new int[]{0, Integer.parseInt(response.substring(0, numEndingIndex))};
             } else {
-                return new int[]{-999,-999};
+                return new int[]{-999, -999};
             }
-        } catch (IndexOutOfBoundsException e) {
-            return new int[]{-999,-999};
+        } else {
+            try {
+                boolean isNum = false;
+                int numStartingIndex = response.length() - 1;
+                while ("0123456789".indexOf(response.charAt(numStartingIndex)) != -1) { // parse backward to find connected number characters
+                    isNum = true; // if number unit is found mark that there is a number
+
+                    if (numStartingIndex > 0) {
+                        numStartingIndex -= 1;
+                    } else {
+                        numStartingIndex = -1;
+                        break;
+                    }
+                }
+                numStartingIndex += 1;
+                if (isNum) {
+                    return new int[]{numStartingIndex,
+                            Integer.parseInt(response.substring(numStartingIndex))}; // grab full number
+                } else {
+                    return new int[]{-999, -999};
+                }
+            } catch (IndexOutOfBoundsException e) {
+                return new int[]{-999, -999};
+            }
         }
     }
     private String deleteNumFromString(String string, int[] numberData) {
