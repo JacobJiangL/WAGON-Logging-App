@@ -71,7 +71,7 @@ public class Main {
 
         GUI gui = new GUI(sheetService);
         frame.setBounds(0, 0, 1440, 900);
-        frame.setTitle("Interactive Registration Form (Made with Java AWT and Swing!)");
+        frame.setTitle("WAGON Food Logging Manager");
         frame.setResizable(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
