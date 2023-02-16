@@ -9,7 +9,6 @@
 //import com.google.api.client.json.JsonFactory;
 //import com.google.api.client.json.gson.GsonFactory;
 //import com.google.api.client.util.store.FileDataStoreFactory;
-import com.google.api.services.sheets.v4.Sheets;
 //import com.google.api.services.sheets.v4.SheetsScopes;
 //import com.google.api.services.sheets.v4.model.ValueRange;
 //import java.io.FileNotFoundException;
@@ -21,87 +20,80 @@ import com.google.api.services.sheets.v4.Sheets;
 //import java.util.List;
 
 
-import java.util.ArrayList;
-
 // awt/swing imports
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.IOException;
 
-import javax.swing.JPanel;
+        import javax.swing.JPanel;
 import javax.swing.Timer;
 
-public class GUI extends JPanel implements ActionListener, KeyListener, MouseListener {
-    private final Timer timer;
-    private final int delay = 8;
-    private ArrayList<Button> buttons = new ArrayList<>();
-    protected Sheets sheetService;
+public class GUI extends JPanel implements ActionListener, MouseListener {
 
-    public GUI(Sheets sheetService) {
-        addKeyListener(this);
+    protected enum PageType {
+        REQUEST_LIST,
+        REQUEST_DETAILS
+    }
+
+    private final Timer timer;
+    private final int delay = 20;
+
+    protected PageContainer currentPage;
+    protected Processor processor;
+
+    public GUI(Processor processor) {
+        this.processor = processor;
+        this.currentPage = new PageContainer(this, PageType.REQUEST_LIST);
+
         addMouseListener(this);
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
 
-        this.sheetService = sheetService;
         this.timer = new Timer(delay, this);
         timer.start();
     }
 
-    public void paint(Graphics g) {
-
-    }
+    public void paint(Graphics g) {currentPage.draw((Graphics2D) g);}
 
     private void checkButtonPresses(int xClick, int yClick) {
-        for(Button button : buttons) {
+        for(ButtonComponent button : currentPage.getButtons()) {
             if(button.checkPressed(xClick, yClick)) {
-                executeButtonCommand(button);
+                button.executeCommand();
+            }
+        }
+        for(ListComponent list : currentPage.lists) {
+            if(list.scrollBar.checkPressed(xClick, yClick)) {
+                list.scrollBar.scroll(yClick);
             }
         }
     }
+
     private void releaseButtons() {
-        for(Button button : buttons) {
+        for(ButtonComponent button : currentPage.getButtons()) {
             button.release();
         }
-    }
-    private void executeButtonCommand(Button button) {
-        switch(button.getIdentifier()) {
-            default:
-                break;
+        for(ListComponent list : currentPage.lists) {
+            list.scrollBar.release();
         }
     }
-
 
     @Override
     public void actionPerformed(ActionEvent e) {
-
+        for(ListComponent list : currentPage.lists) {
+            if(list.scrollBar.pressed) {
+                try {
+                    list.scrollBar.scroll(getMousePosition().y);
+                } catch(NullPointerException ignore) { }
+            }
+        }
+        repaint();
     }
 
     @Override
-    public void keyTyped(KeyEvent e) {
-
-    }
-
-    @Override
-    public void keyPressed(KeyEvent press) {
-
-    }
-
-    @Override
-    public void keyReleased(KeyEvent release) {
-
-    }
-
-    @Override
-    public void mouseClicked(MouseEvent e) {
-
-    }
+    public void mouseClicked(MouseEvent e) { }
 
     @Override
     public void mousePressed(MouseEvent press) {
@@ -114,12 +106,8 @@ public class GUI extends JPanel implements ActionListener, KeyListener, MouseLis
     }
 
     @Override
-    public void mouseEntered(MouseEvent e) {
-
-    }
+    public void mouseEntered(MouseEvent e) { }
 
     @Override
-    public void mouseExited(MouseEvent e) {
-
-    }
+    public void mouseExited(MouseEvent e) { }
 }

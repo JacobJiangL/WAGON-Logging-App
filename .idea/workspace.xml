@@ -4,13 +4,25 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="954bc39e-c567-4c66-a8c9-4601b8037d1d" name="Changes" comment="idk some random stuff ig">
-      <change afterPath="$PROJECT_DIR$/src/main/java/Processor.java" afterDir="false" />
+    <list default="true" id="954bc39e-c567-4c66-a8c9-4601b8037d1d" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/ButtonFunction.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/Component.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/Container.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ListComponent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ListFoodItem.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ListItem.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ListResponseItem.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/PageContainer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ScrollBarComponent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/Writer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Button.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ButtonComponent.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/GUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/GUI.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Processor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Processor.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/Reader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Reader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Request.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Response.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Response.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Response.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,14 +70,14 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;project.structure.last.edited&quot;: &quot;SDKs&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "project.structure.last.edited": "SDKs",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "inlay.hints"
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected="Application.Main">
     <configuration name="Main" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="Main" />
@@ -130,7 +142,14 @@
       <option name="project" value="LOCAL" />
       <updated>1669398477255</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="successfully stores all data -and processes most of it correctly- from google sheets into program">
+      <created>1671757625936</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1671757625936</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -138,18 +157,15 @@
     <MESSAGE value="idk some random stuff ig" />
     <MESSAGE value="made text processor for gathering useful data out of poorly formatted form responses" />
     <MESSAGE value="revamp/overhaul/rework of text processor (less boilerplate code + added functionality/failsafes)" />
-    <option name="LAST_COMMIT_MESSAGE" value="revamp/overhaul/rework of text processor (less boilerplate code + added functionality/failsafes)" />
+    <MESSAGE value="successfully stores all data -and processes most of it correctly- from google sheets into program" />
+    <option name="LAST_COMMIT_MESSAGE" value="successfully stores all data -and processes most of it correctly- from google sheets into program" />
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/Main.java</url>
-          <line>105</line>
-          <option name="timeStamp" value="7" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+    <pin-to-top-manager>
+      <pinned-members>
+        <PinnedItemInfo parentTag="java.awt.geom.Rectangle2D$Double" memberName="height" />
+      </pinned-members>
+    </pin-to-top-manager>
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

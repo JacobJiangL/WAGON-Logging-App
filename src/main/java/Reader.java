@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.lang.StringBuilder;
 import java.util.Arrays;
+import java.util.Collections;
 
 public class Reader {
     protected ArrayList<String> amountUnits = new ArrayList<>() {
@@ -12,10 +13,12 @@ public class Reader {
             add("bags"); add("bag");
             add("pans"); add("pan");
             add("packs"); add("pack");
-            add("package"); add("packages");
-            add("jar"); add("jar");
+            add("packages"); add("package");
+            add("packets"); add("packet");
+            add("jars"); add("jar");
         }
     };
+
     protected ArrayList<String> weightUnits = new ArrayList<>() {
         { // weight unit keywords to be recognized in responses
             add("lbs"); add("lb");
@@ -25,6 +28,7 @@ public class Reader {
             add("grams"); add("gram");
         }
     };
+
     protected ArrayList<String> numbers = new ArrayList<>() {
         { // currently unimplemented
             add("one"); add("two"); add("three"); add("four"); add("five"); //1-5
@@ -34,8 +38,42 @@ public class Reader {
         }
     };
 
+    protected ArrayList<String> filteredStrings = new ArrayList<>() {
+        {
+            add("a");
+            add("of");
+            add("."); add(","); add(":");
+            add("("); add(")");
+            add("["); add("]");
+
+        }
+    };
+    protected ArrayList<String> filteredPunctuation = new ArrayList<>() {
+        {
+            add("."); add(","); add(":");
+            add("("); add(")");
+            add("["); add("]");
+
+        }
+    };
+
     public Object[][] splitAndProcessResponses(String r) {
-        String[] unfilteredResponses = r.split("\n");
+
+        String splitChar;
+        if(r.contains("\n")) {
+            splitChar = "\n";
+        } else if (r.contains(",")) {
+            splitChar = ",";
+        } else if (r.contains("-")) {
+            splitChar = "-";
+        } else {
+            splitChar = "none";
+        }
+
+        String[] unfilteredResponses = {r};
+        if(!splitChar.equals("none")) {
+            unfilteredResponses = r.split(splitChar);
+        }
         ArrayList<String> responses = new ArrayList<>();
 
         for(String response : unfilteredResponses) {
@@ -44,18 +82,22 @@ public class Reader {
             }
         }
 
-        Object[][] processResponses = new Object[responses.size()][];
+        Object[][] processedResponse = new Object[responses.size()][];
 
         for(int i=0; i < responses.size(); i++) {
-            processResponses[i] = processResponse(responses.get(i));
+            processedResponse[i] = processResponse(responses.get(i));
         }
-        return processResponses;
+        return processedResponse;
     }
 
     public Object[] processResponse(String r) {
+
         String response = r.toLowerCase().trim().replaceAll(" +", " ");
+
         ArrayList<String> separatedResponse = new ArrayList<>(Arrays.asList(response.split(" ")));
+
         Object[] processedResponse = new Object[5]; // 5 slots - 1: food, 2: amount of food, 3: unit of food, 4: amount of weight, 5: unit of weight
+
         for(String unit : amountUnits) { // parse through each amount unit
             int[] numOfUnit = {-999,-999};
             for(int i = 0; i<separatedResponse.size(); i++) {
@@ -81,8 +123,8 @@ public class Reader {
                 }
             }
             response = String.join(" ", separatedResponse);
-
         }
+
         for(String unit : weightUnits) { // parse through each weight unit
             int[] numOfUnit = {-999,-999};
             for(int i = 0; i<separatedResponse.size(); i++) { // parse through each word of split response, checking if it matches weight unit
@@ -109,35 +151,70 @@ public class Reader {
             }
             response = String.join(" ", separatedResponse);
         }
-        response = response.trim();
-        while (response.startsWith("of ") || response.startsWith(",") || response.startsWith(".")) {
-            if(response.startsWith("of ") || response.startsWith("of,")) {                                    // trim leading "of"s
-                response = response.substring(2).trim();
-            } else if (response.startsWith(",")) {                              // trim leading ","s
-                response = response.substring(1).trim();
-            } else if (response.startsWith(".")) {                              // trim leading "."s
-                response = response.substring(1).trim();
-            }
 
-        }
-        while (response.endsWith(" of") || response.endsWith(",") || response.endsWith(".")) {
-            if(response.endsWith(" of") || response.endsWith(",of")) {                                        // trim trailing "of"s
-                response = response.substring(0, response.length() - 2).trim();
-            } else if (response.endsWith(",")) {                                // trim trailing ","s
-                response = response.substring(0, response.length() - 1).trim();
-            } else if (response.endsWith(".")) {                                // trim trailing "."s
-                response = response.substring(0, response.length() - 1).trim();
+        response = response.trim();
+
+        boolean startsWith = true;
+        while (startsWith) {
+            for (String filteredString : filteredStrings) {
+                startsWith = false;
+                if (response.startsWith(filteredString + " ")) {
+                    response = response.substring(filteredString.length()).trim();
+                    startsWith = true;
+                } else if (response.startsWith(filteredString) && filteredPunctuation.contains(filteredString)) {                              // trim leading "."s
+                    response = response.substring(1).trim();
+                    startsWith = true;
+                }
+                for (String punctuation : filteredPunctuation) {
+                    if (response.startsWith(filteredString + punctuation)) {
+                        response = response.substring(filteredString.length() + 1).trim();
+                        startsWith = true;
+                    }
+                }
             }
         }
-        if(findNumInString(response, true)[1] >= 0 && processedResponse[1] == null) { // if (number with no associated keyword) && (number of item hasn't been assigned), then assign number as the number of item
+        boolean endsWith = true;
+        while (endsWith) {
+            for(String filteredString : filteredStrings) {
+                endsWith = false;
+                if (response.endsWith(" " + filteredString)) {
+                    response = response.substring(0, response.length() - filteredString.length()).trim();
+                    endsWith = true;
+                } else if (response.endsWith(filteredString) && filteredPunctuation.contains(filteredString)) {                              // trim leading "."s
+                    response = response.substring(0, response.length() - 1).trim();
+                    endsWith = true;
+                }
+                for(String punctuation : filteredPunctuation) {
+                    if(response.endsWith(punctuation + filteredString)) {
+                        response = response.substring(0, response.length() - filteredString.length()).trim();
+                        endsWith = true;
+                    }
+                }
+            }
+        }
+
+        if(findNumInString(response, true)[1] >= 0 && processedResponse[1] == null) {
+            // if (number with no associated keyword) && (number of item hasn't been assigned), then assign number as the number of item
             processedResponse[1] = findNumInString(response, true)[1];
             response = deleteNumFromString(response, findNumInString(response, true)).trim();
+        } else if(findNumInString(response, false)[1] >= 0 && processedResponse[1] == null) {
+            // if (number with no associated keyword) && (number of item hasn't been assigned), then assign number as the number of item
+            processedResponse[1] = findNumInString(response, false)[1];
+            response = deleteNumFromString(response, findNumInString(response, false)).trim();
         } else if (processedResponse[1] == null) { // default number of item as 1
             processedResponse[1] = 1;
         }
+
         processedResponse[0] = capitalizeWordsInString(response); // capitalize food item name (remaining part of response) & log it
+
+        if(processedResponse[0].equals("") && processedResponse[2] != null) {
+            processedResponse[0] = capitalizeWordsInString((String)processedResponse[2]);
+            processedResponse[2] = null;
+        }
+
         return processedResponse;
     }
+
     private int[] findNumInString(String response, boolean startFromBeginning) { // check if a number is in a string and return its index + the number itself
         if(response.equals("")) { // error when no name for item cause everything else is removed and then str is just "" (can't have charAt(0) of empty str)
             return new int[]{-999, -999};
@@ -156,6 +233,7 @@ public class Reader {
                     break;
                 }
             }
+
             if (isNum) {
                 return new int[]{0, Integer.parseInt(response.substring(0, numEndingIndex))}; // starting index always 0
             } else {
@@ -175,6 +253,7 @@ public class Reader {
                         break;
                     }
                 }
+
                 numStartingIndex += 1; // algorithm index is always 1 less than should be
                 if (isNum) {
                     return new int[]{numStartingIndex,
@@ -182,11 +261,13 @@ public class Reader {
                 } else { // if there is something but no number, return no number
                     return new int[]{-999, -999};
                 }
+
             } catch (IndexOutOfBoundsException e) { // if there is null before keyword, return no number
                 return new int[]{-999, -999};
             }
         }
     }
+
     private String deleteNumFromString(String string, int[] numberData) {
         StringBuilder builder = new StringBuilder(string);
         try {
@@ -196,6 +277,7 @@ public class Reader {
             return string;
         }
     }
+
     private String capitalizeWordsInString(String s) { // split on spaces, in each word capitalize char at first index, rejoin w/ spaces
         String[] strings = s.split(" ");
         for (int i = 0; i<strings.length; i++) {
@@ -207,5 +289,4 @@ public class Reader {
         }
         return String.join(" ", strings);
     }
-
 }
